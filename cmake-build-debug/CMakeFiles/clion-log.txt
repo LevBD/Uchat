@@ -1,0 +1,16 @@
+/private/var/folders/zz/zyxvpxvq6csfxvn_n0003ymh000zn4/T/AppTranslocation/AF2363A3-9394-43AD-94ED-28B2CCD9A0ED/d/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/blevishche/study/uchat2
+-- Configuring done
+CMake Error at CMakeLists.txt:10 (add_executable):
+  Cannot find source file:
+
+    server/main.c
+
+  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .m .M .mm .h .hh .h++ .hm
+  .hpp .hxx .in .txx
+
+
+CMake Error at CMakeLists.txt:10 (add_executable):
+  No SOURCES given to target: uchat2
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.
