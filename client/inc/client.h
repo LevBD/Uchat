@@ -12,7 +12,10 @@
 #include <sys/errno.h>
 #include <pthread.h>
 #include <netdb.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include "../../libjson/json.h"
 
-int main(int argc, const char **argv);
+
 
 #endif
