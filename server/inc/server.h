@@ -16,6 +16,7 @@
 #include <sys/un.h>
 #include <sys/event.h>
 #include <fcntl.h>
+#include "../libjson/libjson.a"
 
 struct sockaddr_in addr;
 

@@ -2,6 +2,9 @@
 
 int main(int argc, const char **argv) {
 
+    argc = 0;
+    argv = NULL;
+
 //    if (mx_daemon(argv[1]) == -1) {
 //        printf("error 1 = %s\n", strerror(errno));
 //        return -1;

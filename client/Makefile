@@ -1,54 +1,54 @@
-NAME_C = uchat
+NAME	=	uchat
 
-SRCD = src
-INCD = inc
-OBJD = obj
+CFLG	=	-std=c11 $(addprefix -W, all extra error pedantic) -g
 
-LJSOND	= ../libjson
-LJSONX  = ../libjson/libjsonc.a
-LJSONA := $(addprefix $(LJSOND)/, $(LJSONX))
+SRCD	=	src
+INCD	=	inc
+OBJD	=	obj
 
-INCS = uchat.h
 
-SRC_CLIENT = client.c
+INC		=	client.h
+INCS	=	$(addprefix $(INCD)/, $(INC))
 
-SRCS_CLIENT = $(addprefix $(SRCD)/client/, $(SRC_CLIENT))
+SRC		=	client.c \
 
-OBJS_CLIENT = $(addprefix $(OBJD)/, $(SRC_CLIENT:%.c=%.o))
 
-CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic
+SRCS	=	$(addprefix $(SRCD)/, $(SRC))
+OBJS	=	$(addprefix $(OBJD)/, $(SRC:%.c=%.o))
 
-all: install
+JSONA = ../libjson/libjsonc.a
+JSOND = ../libjson
+JSONI = ../libjson/inc
+all: $(NAME)
+
+$(FILE:a/%=%)
+
+$(NAME): $(JSONA) $(OBJS)
+	@clang $(CFLG) $(OBJS) -lmx -L$(JSOND) -o $@ $(JSONA)
+	@printf "\r\33[2K$@ \033[32;1mcreated\033[0m\n"
+
+$(OBJD)/%.o: $(SRCD)/%.c $(INCS)
+	@clang $(CFLG) -c $< -o $@ -I$(INCD) -I$(JSONI)
+	@printf "\r\33[2K$(NAME) \033[33;1mcompile \033[0m$(<:$(SRCD)/%.c=%) "
+
+$(OBJS): | $(OBJD)
 
 $(OBJD):
-	@mkdir -pv $@
+	@mkdir -p $@
 
-client: $(NAME_C)
+$(JSOND): $(JSONA)
 
-$(NAME_C): $(OBJS_CLIENT)
-	@clang $(CFLAGS) `pkg-config --cflags --libs gtk+-3.0` $(LJSONA) $(OBJS_CLIENT) -o $@
-	@printf "\r\33[2K$@\t\t   \033[32;1mcreated\033[0m\n"
-
-$(OBJD)/%.o: src/%.c $(INCS)
-	@clang $(CFLAGS) `pkg-config --cflags gtk+-3.0` -o $@ -c $< -I$(INCD)
-	@printf "\r\33[2K\033[37;1mcompile \033[0m$(<:$(SRCD)/%.c=%) "
-
-#$(OBJD)/%.o: src/functions/%.c $(INCS)
-#	@clang $(CFLAGS) `pkg-config --cflags gtk+-3.0` -o $@ -c $< -I$(INCD) -I$(LMXI)
-#	@printf "\r\33[2K\033[37;1mcompile \033[0m$(<:$(SRCD)/%.c=%) "
-
-$(OBJS_CLIENT): | $(OBJD)
-
-install: client
+$(JSONA):
+	@make -sC $(JSOND)
 
 clean:
-	@make -sC ./libjson clean
+	@make -sC $(JSOND) $@
 	@rm -rf $(OBJD)
-	@printf "$(OBJD)\t\t   \033[31;1mdeleted\033[0m\n"
+	@printf "$(OBJD)\t   \033[31;1mdeleted\033[0m\n"
 
 uninstall: clean
-	@make -sC ./libjson uninstall
-	@rm -rf $(NAME_C)
-	@printf "$(NAME_C)\t\t   \033[31;1muninstalled\033[0m\n"
+	@make -sC $(JSOND) $@
+	@rm -rf $(NAME)
+	@printf "$(NAME) \033[31;1muninstalled\033[0m\n"
 
-reinstall: uninstall install
+reinstall: uninstall all
