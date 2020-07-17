@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.36.0 -->
+<interface>
+  <requires lib="gtk+" version="3.22"/>
+  <object class="GtkWindow" id="LoginWin">
+    <property name="can_focus">False</property>
+    <property name="default_width">800</property>
+    <property name="default_height">600</property>
+    <property name="gravity">center</property>
+    <child>
+      <object class="GtkFixed" id="FixID">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="halign">center</property>
+        <property name="valign">center</property>
+        <property name="margin_left">20</property>
+        <property name="margin_right">20</property>
+        <property name="margin_top">20</property>
+        <property name="margin_bottom">20</property>
+        <child>
+          <object class="GtkEntry" id="LoginEntry">
+            <property name="width_request">100</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="placeholder_text" translatable="yes">Login</property>
+          </object>
+          <packing>
+            <property name="y">20</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="PassEntry">
+            <property name="width_request">100</property>
+            <property name="height_request">30</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="visibility">False</property>
+            <property name="invisible_char">●</property>
+            <property name="placeholder_text" translatable="yes">Password</property>
+          </object>
+          <packing>
+            <property name="y">68</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="LoginButton">
+            <property name="label" translatable="yes">Login</property>
+            <property name="width_request">134</property>
+            <property name="height_request">37</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="x">18</property>
+            <property name="y">124</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="StatusLabel">
+            <property name="width_request">156</property>
+            <property name="height_request">18</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <attributes>
+              <attribute name="foreground" value="#efef29292929"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="x">7</property>
+            <property name="y">105</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
+</interface>

@@ -13,6 +13,7 @@ INCS	=	$(addprefix $(INCD)/, $(INC))
 SRC		=	main.c \
 			mx_demon.c \
 			mx_soket_handler.c \
+			db_api.c
 
 
 SRCS	=	$(addprefix $(SRCD)/, $(SRC))
@@ -26,7 +27,7 @@ all: $(NAME)
 $(FILE:a/%=%)
 
 $(NAME): $(JSONA) $(OBJS)
-	@clang $(CFLG) $(OBJS) -lmx -L$(JSOND) -o $@ $(JSONA)
+	@clang $(CFLG) $(OBJS) -lmx -L$(JSOND) -lsqlite3 -o $@ $(JSONA)
 	@printf "\r\33[2K$@ \033[32;1mcreated\033[0m\n"
 
 $(OBJD)/%.o: $(SRCD)/%.c $(INCS)

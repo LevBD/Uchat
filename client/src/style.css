@@ -1,0 +1,36 @@
+button {
+	color: #0a4886;
+	/*text-transform: uppercase;*/
+	font-size: 16px;
+	background: rgb(255,255,255);
+	/*background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(227,227,224,1) 50%, rgba(255,255,255,1) 100%);*/
+	/*padding: 20px;*/
+	border: 4px solid #0a4886;
+	border-radius: 6px;
+	/*display: inline-block;*/
+	transition: all 0.3s ease 0s;
+}
+
+button:hover {
+	/*color: ;*/
+	border-radius: 50px;
+	border-color: #494949;
+	transition: all 0.3s ease 0s;
+	background: rgb(241,241,241);
+	background: linear-gradient(0deg, rgba(241,241,241,1) 0%, rgba(255,255,255,1) 50%, rgba(241,241,241,1) 100%);
+	color: #494949;
+}
+
+entry {
+	padding: 2px 3px;
+	border: 3px solid;
+	border-radius: 6px;
+	color: #0a4886;
+	border-color: #0a4886;
+}
+
+
+window {
+	background: rgb(245,240,8);
+	background: radial-gradient(at 0% 0%, #f4ef23, #74ceff, #0a4886);
+}
