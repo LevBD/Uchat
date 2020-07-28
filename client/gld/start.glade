@@ -2,7 +2,8 @@
 <!-- Generated with glade 3.36.0 -->
 <interface>
   <requires lib="gtk+" version="3.22"/>
-  <object class="GtkWindow"  id="start_window">
+  <!-- interface-css-provider-path style.css -->
+  <object class="GtkWindow" id="start_window">
     <property name="can_focus">False</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
@@ -27,7 +28,7 @@
             <property name="receives_default">True</property>
           </object>
           <packing>
-            <property name="y">1</property>
+            <property name="y">278</property>
           </packing>
         </child>
         <child>
@@ -40,7 +41,41 @@
             <property name="receives_default">True</property>
           </object>
           <packing>
-            <property name="y">65</property>
+            <property name="y">337</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkImage" id="logo">
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <!-- <property name="pixbuf">./210210.jpg</property> -->
+          </object>
+          <packing>
+            <property name="y">56</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="name_label">
+            <property name="width_request">212</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Uchat</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="width_request">81</property>
+            <property name="height_request">16</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">by ...</property>
+          </object>
+          <packing>
+            <property name="x">107</property>
+            <property name="y">397</property>
           </packing>
         </child>
       </object>

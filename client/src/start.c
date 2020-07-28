@@ -5,7 +5,9 @@
 
 GtkWidget *RegButton;
 GtkWidget *SignInButton;
+GtkWidget *Logo;
 GtkWidget *StartWindow;
+GtkWidget *NameLabel;
 
 pthread_t loginner;
 
@@ -29,7 +31,7 @@ void open_login_win(GtkWidget *widget, gpointer data)
 {
     (void) widget;
     (void) data;
-    init_login_window();
+    mx_init_login_window();
     gtk_widget_set_sensitive(SignInButton, 1);
     gtk_widget_hide(StartWindow);
     gtk_widget_show_all(loginWindow);
@@ -40,7 +42,7 @@ void open_reg_win(GtkWidget *widget, gpointer data)
 {
     (void) widget;
     (void) data;
-    init_sign_up_window();
+    mx_init_sign_up_window();
     gtk_widget_set_sensitive(RegButton, 1);
     gtk_widget_hide(StartWindow);
     gtk_widget_show_all(signUpWindow);
@@ -53,9 +55,9 @@ void open_reg_win(GtkWidget *widget, gpointer data)
 //             GTK_STYLE_PROVIDER(cssProvider), GTK_STYLE_PROVIDER_PRIORITY_USER);
 // }
 
-void init_start_window()
+void mx_init_start_window()
 {
-    GtkBuilder *builder = gtk_builder_new_from_resource("/org/gtk/client/start.glade");
+    GtkBuilder *builder = gtk_builder_new_from_file("client/gld/start.glade");
 
     StartWindow = GTK_WIDGET(gtk_builder_get_object(builder,"start_window"));
 
@@ -66,15 +68,21 @@ void init_start_window()
     RegButton = GTK_WIDGET(gtk_builder_get_object(builder,"OpenSignUpWin"));
     g_signal_connect(G_OBJECT(RegButton),"clicked", G_CALLBACK(open_reg_win),NULL);
     SignInButton = GTK_WIDGET(gtk_builder_get_object(builder,"OpenSignInWin"));
+    NameLabel = GTK_WIDGET(gtk_builder_get_object(builder,"name_label"));
+    Logo = GTK_WIDGET(gtk_builder_get_object(builder,"logo"));
     g_signal_connect(G_OBJECT(SignInButton),"clicked", G_CALLBACK(open_login_win),NULL);
 
+    gtk_image_set_from_file(GTK_IMAGE(Logo), "./210210.png");
+    
     GtkCssProvider *cssStyle;
     cssStyle = gtk_css_provider_new();
-
     gtk_css_provider_load_from_path(cssStyle, "./client/src/style.css", NULL);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+                                           GTK_STYLE_PROVIDER(cssStyle),
+                                           GTK_STYLE_PROVIDER_PRIORITY_USER);
 
-    mx_css_set(cssStyle, StartWindow);
-    mx_css_set(cssStyle, RegButton);
-    mx_css_set(cssStyle, SignInButton);
-
+    gtk_widget_set_name(StartWindow, "main_window");
+    gtk_widget_set_name(RegButton, "send_button");
+    gtk_widget_set_name(SignInButton, "send_button");
+    gtk_widget_set_name(NameLabel, "name_label");
 }

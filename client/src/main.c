@@ -1,40 +1,86 @@
 #include "../inc/client.h"
 
-t_client_info *get_client_info(void) {
-    static t_client_info socket;
+t_client_info *mx_get_client_info(void) {
+    static t_client_info argv;
 
-    return &socket;
+    return &argv;
 }
 
-static int init_connection(int argc,char *argv[], int sock) {
-    t_client_info *inf_sock = get_client_info();
-    struct sockaddr_in addr;
 
-    inf_sock->sock = sock;
-    if (sock == -1) {
-        printf("ERROR: %s\n", strerror(errno));
-        return -1;
+
+void mx_print_usage(int num) {
+
+    switch (num) {
+        case 0:
+            printf("usage: ./uchat [ip] [port (> 1024)]\n");
+            break;
+        case 1: {
+            printf("usage: ./uchat");
+            printf("\033[1;91m [ip]\033[0m");
+            printf(" [port (> 1024)]\n");
+            break;
+        }
+        case 2: {
+            printf("usage: ./uchat [ip]");
+            printf("\033[1;91m [port (> 1024)]\n\033[0m");
+            break;
+        }
     }
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(5003);
-    inet_aton("10.111.3.11", &addr.sin_addr);
-    // inet_aton("127.0.0.1", &addr.sin_addr);
-    if (connect(sock, (struct sockaddr *) &addr, sizeof(addr)) != 0) {
-        printf("CONNECT ERROR: %s\n", strerror(errno));
-        close(sock);
-        return -1;
+    exit(1);
+}
+
+
+bool mx_check_ip(char *argv[], char **d_ip) {
+    char *ip = strdup(argv[1]);
+
+    if (mx_count_words(ip, '.') != 4) {
+    	*d_ip = NULL;
+    	return false;
     }
-    return 0;
+    *d_ip = ip;
+    return true;
+}
+
+bool mx_check_port(char *argv[], short *port) {
+	*port = atoi(argv[2]);
+
+    if (*port <= 1024)
+    	return false;
+    return true;
+}
+
+t_start *mx_check_input(int argc, char *argv[]){
+    short port = 0;
+    char *ip = NULL;
+    t_start *start = NULL;
+
+    if (argc < 3) {
+        mx_print_usage(0);
+    }
+    if (!mx_check_ip(argv, &ip)) {
+    	mx_print_usage(1);
+    }
+    if (!mx_check_port(argv, &port)) {
+    	mx_print_usage(2);
+    }
+    start = (t_start *)malloc(sizeof(t_start));
+    start->ip = ip;
+    start->port = port;
+    return start;
 }
 
 int main(int argc,char *argv[]){
-	argc = 0;
-    argv = NULL;
+    t_client_info *info = mx_get_client_info();
+    info->argv = argv;
+    owner.last_server_back = NULL;
     int sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (init_connection(argc, argv, sock) < 0)
+
+    info->socket = sock;
+    start_data = mx_check_input(argc, argv);
+    if (mx_init_connection(sock, start_data) < 0)
         return -1;
     gtk_init(&argc, &argv);
-    init_start_window();
+    mx_init_start_window();
     gtk_widget_show_all(StartWindow);
     gtk_main();
     close(sock);

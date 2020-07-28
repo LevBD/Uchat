@@ -9,10 +9,10 @@ GtkWidget *loginWindow;
 pthread_t loginner;
 int logged_in;
 
-char *message_do_login(t_user_info *log_par) {
-	t_client_info *clnt = get_client_info();
+char *mx_message_do_login(t_user_info *log_par) {
 	char *data = NULL;
-	char answ[1024];
+	char answ[BUF_SIZE];
+    int rc = -1;
 	json_object *jobj = json_object_new_object();
 	json_object *j_type = json_object_new_string("log_in");
 	json_object *j_login = json_object_new_string(log_par->login);
@@ -22,24 +22,30 @@ char *message_do_login(t_user_info *log_par) {
 	json_object_object_add(jobj, "login", j_login);
 	json_object_object_add(jobj, "password", j_passwd);
 	data = (char *)json_object_to_json_string(jobj);
-	write(0, data, strlen(data));												/***************/
-	write(0, "\n", strlen("\n"));												/***************/
-	if (write(clnt->sock, data, strlen(data)) == -1) {
-		printf("error = %s\n", strerror(errno));
+	while ((tls_write(tls_ctx, data, strlen(data))) <= 0) {
+		rc = mx_do_reconnection(-1);
+        if (rc < 0) {
+            return LG_ERROR_CONNECTION; 
+        }
+
 	}
-	read(clnt->sock, answ, 1024);
-	printf("SERVER ::: %s\n", answ);
+	if (tls_read(tls_ctx, answ, BUF_SIZE) <= 0) {
+		rc = mx_do_reconnection(-1);
+        if (rc < 0) {
+            return LG_ERROR_CONNECTION; 
+        }
+	}
+	json_object_put(jobj);
 	return mx_proc_server_back(answ, log_par);
 }
 
-void *login_thread(void *param)
-{
+void *mx_login_thread(void *param) {
 	// char *res = "incorrect login or password";
 	char *res = NULL;
 //    char *res = message_connect(((t_user_info *)param)->ip, ((t_user_info *)param)->iport);
 	//ippppp port
 //	if(!res)
-	res = message_do_login((t_user_info *)param);
+	res = mx_message_do_login((t_user_info *)param);
 	if(res)
 	{
 		gtk_label_set_text(GTK_LABEL(statusLabel), res);
@@ -47,7 +53,7 @@ void *login_thread(void *param)
 	}
 	else
 	{
-		init_chat_window(((t_user_info *)param)->nickname);
+		mx_init_chat_window(((t_user_info *)param)->nickname);
 		logged_in = 1;
 		free(param);
 		return param;
@@ -57,7 +63,7 @@ void *login_thread(void *param)
 	return param;
 }
 
-void do_login(GtkWidget *widget, gpointer data)
+void mx_do_login(GtkWidget *widget, gpointer data)
 {
 	(void) widget;
 	(void) data;
@@ -78,13 +84,22 @@ void do_login(GtkWidget *widget, gpointer data)
 	}
 	gtk_widget_set_sensitive(loginButton, 0);
 	t_user_info *li = malloc(sizeof(t_user_info));
-	li->login = (char *)login;
-	li->password = (char *)password;
-	pthread_create(&loginner, 0, login_thread, (void *)li);
+
+	// encrypting login and password:
+	char salt[3];
+	salt[2] = '\0';
+	salt[0] = login[0];
+	salt[1] = login[1];
+	li->login = strdup(crypt((char *)login, salt)); // free() memory
+	salt[0] = password[0];
+	salt[1] = password[1];
+	li->password = strdup(crypt((char *)password, salt)); // free() memory
+
+	pthread_create(&loginner, 0, mx_login_thread, (void *)li);
 }
 
 
-gboolean check_login(void *param)
+gboolean mx_check_login(void *param)
 {
 	(void) param;
 	if(logged_in)
@@ -108,14 +123,14 @@ static void open_start_win(GtkWidget *widget, gpointer data)
 {
     (void) widget;
     (void) data;
-    init_start_window();
+    mx_init_start_window();
     gtk_widget_hide(loginWindow);
     gtk_widget_show_all(StartWindow);
 }
 
-void init_login_window()
+void mx_init_login_window()
 {
-	GtkBuilder *builder = gtk_builder_new_from_resource("/org/gtk/client/login.glade");
+	GtkBuilder *builder = gtk_builder_new_from_file("client/gld/login.glade");
 
 	loginWindow = GTK_WIDGET(gtk_builder_get_object(builder,"LoginWin"));
 	g_signal_connect(loginWindow,"destroy", G_CALLBACK(open_start_win),NULL);
@@ -125,22 +140,22 @@ void init_login_window()
     gtk_window_set_position(GTK_WINDOW(loginWindow), GTK_WIN_POS_CENTER);
 	loginEntry = GTK_WIDGET(gtk_builder_get_object(builder,"LoginEntry"));
 	passwordEntry = GTK_WIDGET(gtk_builder_get_object(builder,"PassEntry"));
-	g_signal_connect(G_OBJECT(loginEntry),"activate", G_CALLBACK(do_login),NULL);
-	g_signal_connect(G_OBJECT(passwordEntry),"activate", G_CALLBACK(do_login),NULL);
+	g_signal_connect(G_OBJECT(loginEntry),"activate", G_CALLBACK(mx_do_login),NULL);
+	g_signal_connect(G_OBJECT(passwordEntry),"activate", G_CALLBACK(mx_do_login),NULL);
 	statusLabel = GTK_WIDGET(gtk_builder_get_object(builder,"StatusLabel"));
 	loginButton = GTK_WIDGET(gtk_builder_get_object(builder,"LoginButton"));
-	g_signal_connect(G_OBJECT(loginButton),"clicked", G_CALLBACK(do_login),NULL);
+	g_signal_connect(G_OBJECT(loginButton),"clicked", G_CALLBACK(mx_do_login),NULL);
 	
 	GtkCssProvider *cssStyle;
-    cssStyle = gtk_css_provider_new();
+	cssStyle = gtk_css_provider_new();
+	gtk_css_provider_load_from_path(cssStyle, "./client/src/style.css", NULL);
+	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+			                               GTK_STYLE_PROVIDER(cssStyle),
+			                               GTK_STYLE_PROVIDER_PRIORITY_USER);
 
-    gtk_css_provider_load_from_path(cssStyle, "./client/src/style.css", NULL);
-
-    mx_css_set(cssStyle, loginWindow);
-    mx_css_set(cssStyle, loginEntry);
-    mx_css_set(cssStyle, passwordEntry);
-    mx_css_set(cssStyle, loginButton);
+	gtk_widget_set_name(loginWindow, "main_window");
+	gtk_widget_set_name(loginButton, "send_button");
 
 	logged_in = 0;
-	g_timeout_add(50, check_login, 0);
+	g_timeout_add(50, mx_check_login, 0);
 }

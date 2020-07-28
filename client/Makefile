@@ -1,37 +1,22 @@
 NAME	=	uchat
 
-CFLG	=	-std=c11 $(addprefix -W, all extra error pedantic) -g
+CFLG	=	-std=c11 -Wall -Wextra -Werror -Wpedantic -Wno-unused-command-line-argument
 
-SRCD	=	src
-INCD	=	inc
-OBJD	=	obj
-GLDD	=	gld
+SRCD	=	src/
+INCD	=	inc/
+OBJD	=	obj/
+GLDD	=	gld/
 
+GLD 	= 	start.glade \
+			login.glade \
+			sign_up.glade \
+			chat.glade
 
-INC		=	client.h
-INCS	=	$(addprefix $(INCD)/, $(INC))
+GTK = `pkg-config --cflags --libs gtk+-3.0`
 
-RS		=	resources.c \
-			style.c
-
-SRC		=	start.c\
-			sign_up.c\
-			login.c\
-			chat.c\
-			main.c
-
-
-GLD 	= 	start.glade\
-			login.glade\
-			sign_up.glade\
-			chat.glade\
-
-SGLD	=	$(addprefix $(GLDD)/, $(GLD))
-
-SRCS	=	$(addprefix $(SRCD)/, $(SRC))
-RSS	=	$(addprefix $(SRCD)/, $(RS))
-
-OBJS	=	$(addprefix $(OBJD)/, $(SRC:%.c=%.o))
+SGLD	=	$(GLDD)$(GLD)
+SRCS	=	$(wildcard $(SRCD)*.c)
+OBJS	=	$(SRCS:$(SRCD)%.c=$(OBJD)%.o)
 
 JSONA = 	../libjson/libjsonc.a
 JSOND = 	../libjson
@@ -41,13 +26,31 @@ LIBMXA = 	../libmx/libmx.a
 LIBMXD = 	../libmx
 LIBMXI = 	../libmx/inc
 
+LIBRESSL_A = \
+			../libressl-3.2.0/tls/.libs/libtls.a \
+			../libressl-3.2.0/ssl/.libs/libssl.a \
+			../libressl-3.2.0/crypto/.libs/libcrypto.a
 
-all: install_json install_libmx install clean
+LIBRESSL_H = \
+			-I ../libressl/include \
+			-I ../libressl/include/openssl \
+			-I ../libressl/tls \
+			-I ../libressl/ssl \
+			-I ../libressl/crypto
 
-install:
-	@cp $(SGLD) ./
-	@glib-compile-resources ./src/client.gresource.xml --target=./src/resources.c --generate-source
-	@clang $(SRCS) $(RSS) $(JSONA) $(LIBMXA) `pkg-config --cflags --libs gtk+-3.0` -o $(NAME) -I$(INCS) -I$(INCD) -I$(JSONI) -I$(LIBMXI)
+IFLG = -I$(INCD) -I$(JSONI) -I$(LIBMXI) $(LIBRESSL_H)
+
+all: install_json install_libmx install
+
+$(OBJD):
+	@mkdir -p $@
+
+$(OBJD)%.o: $(SRCD)%.c
+	@clang $(CFLG) $(GTK) $(IFLG) -c $< -o $@
+	@printf "\r\33[2K$(NAME) \033[33;1mcompile \033[0m$(<:$(SRCD)/%.c=%)"
+
+install: $(OBJD) $(OBJS)
+	@clang $(CFLG) $(SRCS) $(JSONA) $(LIBMXA) $(GTK) $(IFLG) $(LIBRESSL_A) -o $(NAME)
 	@printf "\r\33[2K$(NAME) \033[32;1mcreated\033[0m\n"
 
 install_libmx:
@@ -56,36 +59,8 @@ install_libmx:
 install_json:
 	@make -sC $(JSOND)
 
-
-# all: $(NAME)
-
-# chatclient:
-# 	@cp $(SGLD) ./
-# 	glib-compile-resources ./src/client.gresource.xml --target=./src/resources.c --generate-source
-# 	clang $(SRCS) `pkg-config --cflags --libs gtk+-3.0` -o ./uchat_client -I $(INCS)
-
-# $(FILE:a/%=%)
-
-# $(NAME): $(JSONA) $(OBJS) 
-# 	@clang $(CFLG) $(OBJS) -lmx -L$(JSOND) -o $@ $(JSONA)
-# 	@printf "\r\33[2K$@ \033[32;1mcreated\033[0m\n"
-
-# $(OBJD)/%.o: $(SRCD)/%.c $(INCS)
-# 	@clang $(CFLG) -c $< -o $@ -I$(INCD) -I$(JSONI)
-# 	@printf "\r\33[2K$(NAME) \033[33;1mcompile \033[0m$(<:$(SRCD)/%.c=%) "
-
-# $(OBJS): | $(OBJD)
-
-# $(OBJD):
-# 	@mkdir -p $@
-
-# $(JSOND): $(JSONA)
-
-# $(JSONA):
-# 	@make -sC $(JSOND)
-
 clean:
-	@rm -rf ./src/resources.c $(GLD)
+	@rm -rf $(GLD)
 	@make -sC $(JSOND) $@
 	@rm -rf $(OBJD)
 	@printf "$(OBJD)\t   \033[31;1mdeleted\033[0m\n"

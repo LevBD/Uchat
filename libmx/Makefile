@@ -42,7 +42,6 @@ OBJ = $(FILES:%=$(OBJ_DIR)%.o)
 WFLAGS = -Wall -Wextra -Werror -Wpedantic
 LFLAGS = -Iinc
 CFLAGS = -Ofast -march=native -fomit-frame-pointer -flto
-DFLAGS = -O0 -g3 -glldb -ftrapv -fno-omit-frame-pointer -fsanitize=address
 
 COMPILE = $(CC) -std=c11 -pipe $(WFLAGS) $(LFLAGS)
 PRINT = printf
@@ -63,10 +62,6 @@ F = \033[5m
 K = \033[K
 
 all: install
-
-debug: CFLAGS = $(DFLAGS)
-debug: TARGET = debug
-debug: install
 
 $(OBJ_DIR):
 	@$(MKDIR) $@ $(foreach dir, $(dirs), $@/$(dir))

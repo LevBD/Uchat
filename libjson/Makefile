@@ -16,22 +16,25 @@ SRC = arraylist.c \
 	strerror_override.c \
 
 SRCS = $(addprefix src/, $(SRC))
+
 OBJ_DIR = obj
-OBJS = $(SRCS:.c=.o)
+
+OBJS = $(SRCS:src/%.c=obj/%.o)
+
 CFLAGS = -std=c11 -Wall 
-HEADER = json.h
 
 all: install
 
 install: $(NAME)
 
-$(NAME): $(OBJS)
-	@ar -rcs $(NAME) $(OBJS)
-	@mkdir -p $(OBJ_DIR)
-	@mv $(OBJS) $(OBJ_DIR)
+$(OBJ_DIR):
+	@mkdir -p $@
 
-$(OBJ_DIR)/%.o: $(SRCS)
-	@clang $(CFLAGS) -o $@ -c $< $(HEADER)
+$(NAME): $(OBJ_DIR) $(OBJS)
+	@ar rcs $(NAME) $(OBJS)
+
+$(OBJ_DIR)/%.o: src/%.c
+	@clang $(CFLAGS) -c $< -o $@
 
 uninstall:
 	@rm -rf $(NAME)
